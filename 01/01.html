@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <div id="root">
+        <div className="game">
+            <div className="game-board">
+                <board></board>
+            </div>
+            <div className="game-info">
+                <div></div>
+                <ol></ol>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+    <script>
+        Vue.component("Square", {
+            template: `<button className="square"></button>`
+        });
+        Vue.component("Board", {
+            data: () => {
+                return {
+                    status: "Next player: X",
+                    board: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+                }
+            },
+            template: `
+            <div> 
+                    <div class="board-row" v-for='squares in board'>
+                       <square v-for='square in squares'></square>
+                    </div>
+            </div>`
+        });
+        new Vue({
+            el: "#root",
+            data: {
+
+            }
+        });
+
+    </script>
+</body>
+
+</html>
