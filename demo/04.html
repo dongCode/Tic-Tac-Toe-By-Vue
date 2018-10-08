@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <div id="root">
+        <div className="game">
+            <div class="game-board">
+                <board></board>
+            </div>
+            <div class="game-info">
+                <div></div>
+                <ol></ol>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+    <script>
+        Vue.component("Square", {
+            methods: {
+                handleClick() {
+                    this.$emit('handle-click')
+                }
+            },
+            template: `<button class="square" @click='handleClick'><slot></slot></button>`
+        });
+        Vue.component("Board", {
+            data: () => {
+                return {
+                    status: "Next player: X",
+                    squares: Array(9).fill(null),
+                    xIsNext: true
+                }
+            },
+            methods: {
+                handleClick(i) {
+                    const winner = calculateWinner(this.squares)
+                    if(this.squares[i]) return                    
+                    const squares = this.squares.slice()
+                    //删除相应项并替换
+                    if (this.xIsNext) {
+                        this.squares.splice(i, 1, 'X')
+                    } else {
+                        this.squares.splice(i, 1, 'O')
+                    }
+                    this.xIsNext = !this.xIsNext
+                   
+                    if(winner) {
+                        this.status = "Winner: " + winner
+                    } else {
+                        this.status = "Next player: " + (this.xIsNext ? 'X' : 'O')
+                    }                   
+                }
+            },
+            template:
+                `
+                <div>   
+                        <div class="status">{{status}}</div>
+                        <div class="board-row">
+                          <square @handle-click='handleClick(0)'>{{squares[0]}}</square>
+                          <square @handle-click='handleClick(1)'>{{squares[1]}}</square>
+                          <square @handle-click='handleClick(2)'>{{squares[2]}}</square>
+                        </div>
+                        <div class="board-row">
+                          <square @handle-click='handleClick(3)'>{{squares[3]}}</square>
+                          <square @handle-click='handleClick(4)'>{{squares[4]}}</square>
+                          <square @handle-click='handleClick(5)'>{{squares[5]}}</square>
+                        </div>
+                        <div class="board-row">
+                          <square @handle-click='handleClick(6)'>{{squares[6]}}</square>
+                          <square @handle-click='handleClick(7)'>{{squares[7]}}</square>
+                          <square @handle-click='handleClick(8)'>{{squares[8]}}</square>
+                        </div>
+                </div>
+               `
+        });
+        new Vue({
+            el: "#root",
+            data: {
+
+            }
+        });
+
+
+        function calculateWinner(squares) {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6],
+            ]
+            for(let i = 0;i < lines.length;i++) {
+               let [a, b, c] = lines[i]
+               if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                   return squares[a]
+               }
+            }
+            return null
+        }
+    </script>
+</body>
+
+</html>

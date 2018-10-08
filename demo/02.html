@@ -23,8 +23,13 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
     <script>
-        Vue.component("Square", {           
-            template: `<button class="square"><slot></slot> </button>`
+        Vue.component("Square", {
+            data: () => {
+                return {
+                    squareStatus: null
+                }
+            },        
+            template: `<button class="square" @click='squareStatus = "X"'>{{squareStatus}}</button>`
         });
         Vue.component("Board", {
             data: () => {
@@ -38,7 +43,10 @@
                 <div>   
                         <div class="status">{{status}}</div>
                         <div class="board-row" v-for='(squares, index) in board' :key='index'>
-                        <square v-for='squareStatus in squares' :key='squareStatus'>{{squareStatus}}</square>
+                        <square v-for='squareStatus in squares' 
+                                :key='squareStatus' 
+                                @change-status=''
+                                ></square>
                         </div>
                 </div>
                `
