@@ -11,13 +11,17 @@
 
 <body>
     <div id="root">
-        <div className="game">
+        <div class="game">
             <div class="game-board">
-                <board  @handle-click='handleClick' :squares='squares' :status='status'></board>
+                <board @handle-click='handleClick' :squares='current'></board>
             </div>
             <div class="game-info">
-                <div></div>
-                <ol v-for='(item,index) in history' @click='backTo(index)'>{{index + 1}}</ol>
+                <div class="status">{{status}}</div>
+                <ol v-for='(step,index) in history' @click='jumpTo(index)' :key='index'>
+                    <button>
+                        {{index === 0 ? '1.GO TO START GAME' : (index + 1) + '.MOVETO #' + index}}
+                    </button>
+                </ol>
             </div>
         </div>
     </div>
@@ -33,18 +37,15 @@
             template: `<button class="square" @click='handleClick'><slot></slot></button>`
         });
         Vue.component("Board", {
-            props: ['squares', 'xIsNext', 'status'],          
+            props: ['squares'],
             methods: {
                 handleClick(i) {
-                    if(this.squares[i]) return                    
-                    const squares = this.squares.slice()
-                    this.$emit('handle-click', i,squares)                  
+                    this.$emit('handle-click', i)
                 }
             },
             template:
                 `
-                <div>   
-                        <div class="status">{{status}}</div>
+                <div>                          
                         <div class="board-row">
                           <square @handle-click='handleClick(0)'>{{squares[0]}}</square>
                           <square @handle-click='handleClick(1)'>{{squares[1]}}</square>
@@ -66,37 +67,48 @@
         new Vue({
             el: "#root",
             data: {
-                history: [],
-                squares: Array(9).fill(null),
-                xIsNext: true,
-                status: 'Next player: X',
-                winner: null
-            },
-            methods: {
-                handleClick(i,squares) {
-                    //删除相应项并替换
-                    if(this.winner) return
-                    if (this.xIsNext) {
-                        this.squares.splice(i, 1, 'X')
-                    } else {
-                        this.squares.splice(i, 1, 'O')
+                status: "Next player: X",
+                history: [
+                    {
+                        squares: Array(9).fill(null)
                     }
-                    this.xIsNext = !this.xIsNext          
-                    const winner = calculateWinner(this.squares)
-                    if(winner) {
+                ],
+                xIsNext: true,
+                winner: null,
+                stepNumber: 0,
+                current: Array(9).fill(null)
+            },
+            watch: {
+                xIsNext(val) {                   
+                    const winner = calculateWinner(this.current)
+                    if (winner) {
                         this.status = "Winner: " + winner
                         this.winner = winner
                         return
                     } else {
-                        this.status = "Next player: " + (this.xIsNext ? 'X' : 'O')
-                    }     
-                    this.history.push(squares)
-                                        
+                        this.status = "Next player: " + (val ? 'X' : 'O')
+                    }
+                },               
+            },
+            methods: {              
+                handleClick(i) {
+                    if (this.current[i] || this.winner) return  
+                    this.history = this.history.slice(0, this.stepNumber + 1)
+                    this.current =  this.history[this.stepNumber].squares.slice()
+                    if (this.xIsNext) {
+                        this.current.splice(i, 1, 'X')
+                    } else {
+                        this.current.splice(i, 1, 'O')
+                    }                  
+                    this.xIsNext = !this.xIsNext
+                    this.history.push({ squares: this.current })     
+                    this.stepNumber = this.history.length - 1                         
                 },
-                backTo(i) {
-                    this.squares = this.history[i]
-                    this.history = this.history.slice(0,i)
-                },
+                jumpTo(move) {
+                    this.stepNumber = move                  
+                    this.xIsNext = (move % 2) === 0
+                    this.current =  this.history[this.stepNumber].squares.slice()
+                }
             }
         });
 
@@ -112,11 +124,11 @@
                 [0, 4, 8],
                 [2, 4, 6],
             ]
-            for(let i = 0;i < lines.length;i++) {
-               let [a, b, c] = lines[i]
-               if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                   return squares[a]
-               }
+            for (let i = 0; i < lines.length; i++) {
+                let [a, b, c] = lines[i]
+                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                    return squares[a]
+                }
             }
             return null
         }
