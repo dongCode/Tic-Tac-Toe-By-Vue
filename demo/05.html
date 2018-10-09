@@ -77,20 +77,18 @@
                 winner: null,
                 stepNumber: 0,
                 current: Array(9).fill(null)
-            },
-            watch: {
-                xIsNext(val) {                   
+            },          
+            methods: {   
+                changeStatus() {
                     const winner = calculateWinner(this.current)
                     if (winner) {
                         this.status = "Winner: " + winner
                         this.winner = winner
                         return
                     } else {
-                        this.status = "Next player: " + (val ? 'X' : 'O')
+                        this.status = "Next player: " + (this.xIsNext ? 'X' : 'O')
                     }
-                },               
-            },
-            methods: {              
+                },           
                 handleClick(i) {
                     if (this.current[i] || this.winner) return  
                     this.history = this.history.slice(0, this.stepNumber + 1)
@@ -102,12 +100,14 @@
                     }                  
                     this.xIsNext = !this.xIsNext
                     this.history.push({ squares: this.current })     
-                    this.stepNumber = this.history.length - 1                         
+                    this.stepNumber = this.history.length - 1  
+                    this.changeStatus()                       
                 },
                 jumpTo(move) {
                     this.stepNumber = move                  
                     this.xIsNext = (move % 2) === 0
-                    this.current =  this.history[this.stepNumber].squares.slice()
+                    this.current =  this.history[this.stepNumber].squares.slice()       
+                    this.changeStatus()               
                 }
             }
         });

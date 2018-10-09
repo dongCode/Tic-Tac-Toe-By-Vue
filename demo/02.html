@@ -35,7 +35,7 @@
             data: () => {
                 return {
                     status: "Next player: X",
-                    board: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+                    board: [Array(3).fill(null), Array(3).fill(null), Array(3).fill(null)]
                 }
             },
             template:
@@ -44,8 +44,7 @@
                         <div class="status">{{status}}</div>
                         <div class="board-row" v-for='(squares, index) in board' :key='index'>
                         <square v-for='squareStatus in squares' 
-                                :key='squareStatus' 
-                                @change-status=''
+                                :key='squareStatus'                                 
                                 ></square>
                         </div>
                 </div>
