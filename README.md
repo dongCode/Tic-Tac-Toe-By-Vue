@@ -1,5 +1,5 @@
 # Tic-Tac-Toe-By-Vue
-Tic Tac Toe By Vue
+
            阅读前提：对Vue有一定的了解
 
            看了React的Tic Tac Toe，为了对比两个框架，遂用Vue实现了一遍
