@@ -13,11 +13,11 @@
     <div id="root">
         <div className="game">
             <div class="game-board">
-                <board></board>
+                <board  @handle-click='handleClick' :squares='squares' :status='status'></board>
             </div>
             <div class="game-info">
                 <div></div>
-                <ol></ol>
+                <ol v-for='(item,index) in history' @click='backTo(index)'>{{index + 1}}</ol>
             </div>
         </div>
     </div>
@@ -33,31 +33,12 @@
             template: `<button class="square" @click='handleClick'><slot></slot></button>`
         });
         Vue.component("Board", {
-            data: () => {
-                return {
-                    status: "Next player: X",
-                    squares: Array(9).fill(null),
-                    xIsNext: true,
-                    winner: null
-                }
-            },
+            props: ['squares', 'xIsNext', 'status'],          
             methods: {
-                handleClick(i) {                                       
-                    if (this.squares[i] || this.winner) return
-                    if (this.xIsNext) {
-                        this.squares.splice(i, 1, 'X')
-                    } else {
-                        this.squares.splice(i, 1, 'O')                      
-                    }  
-                    this.xIsNext = !this.xIsNext   
-                    const winner = calculateWinner(this.squares)
-                    if (winner) {
-                        this.status = "Winner: " + winner
-                        this.winner = winner
-                        return
-                    }  else {
-                        this.status = "Next player: " + (this.xIsNext ? 'X' : 'O')
-                    }                                        
+                handleClick(i) {
+                    if(this.squares[i]) return                    
+                    const squares = this.squares.slice()
+                    this.$emit('handle-click', i,squares)                  
                 }
             },
             template:
@@ -85,7 +66,37 @@
         new Vue({
             el: "#root",
             data: {
-
+                history: [],
+                squares: Array(9).fill(null),
+                xIsNext: true,
+                status: 'Next player: X',
+                winner: null
+            },
+            methods: {
+                handleClick(i,squares) {
+                    //删除相应项并替换
+                    if(this.winner) return
+                    if (this.xIsNext) {
+                        this.squares.splice(i, 1, 'X')
+                    } else {
+                        this.squares.splice(i, 1, 'O')
+                    }
+                    this.xIsNext = !this.xIsNext          
+                    const winner = calculateWinner(this.squares)
+                    if(winner) {
+                        this.status = "Winner: " + winner
+                        this.winner = winner
+                        return
+                    } else {
+                        this.status = "Next player: " + (this.xIsNext ? 'X' : 'O')
+                    }     
+                    this.history.push(squares)
+                                        
+                },
+                backTo(i) {
+                    this.squares = this.history[i]
+                    this.history = this.history.slice(0,i)
+                },
             }
         });
 
@@ -101,11 +112,11 @@
                 [0, 4, 8],
                 [2, 4, 6],
             ]
-            for (let i = 0; i < lines.length; i++) {
-                let [a, b, c] = lines[i]
-                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                    return squares[a]
-                }
+            for(let i = 0;i < lines.length;i++) {
+               let [a, b, c] = lines[i]
+               if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                   return squares[a]
+               }
             }
             return null
         }
